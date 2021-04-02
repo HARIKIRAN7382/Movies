@@ -20,6 +20,8 @@ protocol HomeViewControllerDelegate:class{
 
 class HomeViewController: BaseViewController, HomeViewDelegate,HomeViewControllerDelegate {
     
+    @IBOutlet weak var bottomNavBar: UITabBar!
+    
     let homeVM = HomeViewModel()
     
     override func viewDidAppear(_ animated: Bool) {
