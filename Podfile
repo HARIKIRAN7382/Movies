@@ -6,7 +6,7 @@ target 'Movies' do
   use_frameworks!
 
   # Pods for Movies
-  pod 'MaterialComponents/BottomNavigation'
+  pod 'MaterialComponents/Cards'
 
   target 'MoviesTests' do
     inherit! :search_paths
