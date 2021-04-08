@@ -28,6 +28,7 @@ class MovieDetailsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        movieImageView.translatesAutoresizingMaskIntoConstraints = false
         if(selectionType == SelectionType.upcoming){
             self.title = selectedUpcomingMovie?.originalTitle ?? ""
             movieImageView.image = selectedUpcomingMovie?.image

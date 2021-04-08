@@ -24,6 +24,7 @@ class TopRatedMoviesViewController: UIViewController,UITableViewDelegate,UITable
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        topRatedTableView.register(TopRatedMovieTableViewCell.self, forCellReuseIdentifier: TopRatedMovieTableViewCell.identifier)
         topRatingRefreshControl = UIRefreshControl()
         topRatingRefreshControl?.tintColor = .systemBlue
         topRatedTableView.addSubview(topRatingRefreshControl ?? UIRefreshControl())
@@ -40,21 +41,32 @@ class TopRatedMoviesViewController: UIViewController,UITableViewDelegate,UITable
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TopRatingTableViewCell.TOP_RATING_MOVIES_TABLEVIEW_CELL_IDENTIFIER, for: indexPath) as! TopRatingTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: TopRatedMovieTableViewCell.identifier, for: indexPath) as! TopRatedMovieTableViewCell
         if let image = getTopRatedMovieData?.results?[indexPath.row].image{
-            cell.topRatingMovieImageView.image = image
+            cell.movieImageView.image = image
         }else{
             ImageCacheLoader().obtainImageWithPath(imagePath: AppConstants.imageLoadURL + (self.getTopRatedMovieData?.results?[indexPath.row].posterPath ?? "")) { (image) in
-                cell.topRatingMovieImageView.image = image
+                cell.movieImageView.image = image
                 self.getTopRatedMovieData?.results?[indexPath.row].image = image
             }
         }
-        cell.topRatingMovieNameLabel.text = getTopRatedMovieData?.results?[indexPath.row].originalTitle
-        cell.topRatingMovieReleseDateLabel.text = getTopRatedMovieData?.results?[indexPath.row].releaseDate
+        cell.movieNameLabel.text = getTopRatedMovieData?.results?[indexPath.row].originalTitle
+        cell.movieReleseDateLabel.text = getTopRatedMovieData?.results?[indexPath.row].releaseDate
         if let likeCount = getTopRatedMovieData?.results?[indexPath.row].voteCount,let popularity = getTopRatedMovieData?.results?[indexPath.row].voteAverage {
-            cell.topRatingMovieRatingLabel.text = "\(Int(popularity * 10))%  \(likeCount.formatUsingAbbrevation())"
+            cell.movieRatingLabel.text = "\(Int(popularity * 10))%  \(likeCount.formatUsingAbbrevation())"
         }
+        cell.moviewRatingSymbolImage.image = #imageLiteral(resourceName: "heart")
+        cell.cardView.tag = indexPath.row
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(onTapedOnCardView(_:)))
+        cell.cardView.addGestureRecognizer(tapGesture)
         return cell
+    }
+    
+    @objc func onTapedOnCardView(_ sender:UITapGestureRecognizer){
+        self.topRatedTableView.isUserInteractionEnabled = false
+        DispatchQueue.main.async {
+            self.tableView(self.topRatedTableView, didSelectRowAt: IndexPath(row: sender.view?.tag ?? 0, section: 0))
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -62,6 +74,8 @@ class TopRatedMoviesViewController: UIViewController,UITableViewDelegate,UITable
         movieDetailsVC.selectedTopRatedMovie = self.getTopRatedMovieData?.results?[indexPath.row]
         movieDetailsVC.selectionType = .toprated
         self.navigationController?.pushViewController(movieDetailsVC, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
+        self.topRatedTableView.isUserInteractionEnabled = true
     }
     
 }
